@@ -14,6 +14,7 @@ import React from "react";
 import { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import Typography from "../ui/typography";
+import { Loader } from "lucide-react";
 
 type QuizFormProps = {
   form: UseFormReturn<z.infer<typeof quizFormSchema>>;
@@ -82,7 +83,20 @@ function QuizForm({ form, onSubmit }: QuizFormProps) {
             </FormItem>
           )}
         />
-        <Button>Save Quiz</Button>
+        <Button
+          disabled={form.formState.isSubmitting}
+          onClick={form.handleSubmit(onSubmit)}
+          className="ml-auto"
+        >
+          {form.formState.isSubmitting ? (
+            <>
+              <Loader size={14} className="animate-spin" />
+              <span>Please Wait</span>
+            </>
+          ) : (
+            <span>Save</span>
+          )}
+        </Button>
       </form>
     </Form>
   );

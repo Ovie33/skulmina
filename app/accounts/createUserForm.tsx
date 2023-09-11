@@ -19,35 +19,46 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChangeEvent, useState } from "react";
-import httpClient from "@/lib/httpClient";
+import httpClient, { handleValidationError } from "@/lib/httpClient";
 import axios from "axios";
 import { AccountType } from "@/types";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const userFormschema = z.object({
+  name: z.string().min(2, { message: "name is required" }),
+  email: z.string().min(2, { message: "name is required" }),
+  password: z.string().min(2, { message: "name is required" }),
+  role: z.string().min(2, { message: "name is required" }),
+});
 
 const CreateUserForm = () => {
   const [isopen, setIsopen] = useState<boolean>(false);
-  const [errors, setErrors] = useState<AccountType | null>();
-  const [form, setForm] = useState<Record<string, string>>();
 
-  const handleFormUpdate = (n: string, v: string) => {
-    setForm((prevForm) => ({ ...prevForm, [n]: v }));
-  };
+  const form = useForm<z.infer<typeof userFormschema>>({
+    resolver: zodResolver(userFormschema),
+  });
 
   // sunbmit request
-  const createUser = () => {
-    setErrors(null);
-    httpClient
-      .post("register", form)
-      .then((response) => {
-        setIsopen(false);
-        setForm({});
-      })
-      .catch((error) => {
-        if (axios.isAxiosError(error) && error?.response?.status !== 422)
-          throw error;
-
-        setErrors(error.response.data.errors);
-      });
+  const createUser = async (data: z.infer<typeof userFormschema>) => {
+    try {
+      await createUser(data);
+      setIsopen(false);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error?.response?.status === 422)
+        handleValidationError(error, form.setError);
+      console.log(error);
+    }
   };
+
   return (
     <Dialog open={isopen} onOpenChange={() => setIsopen(!isopen)}>
       <DialogTrigger className="h-fit">
@@ -57,61 +68,59 @@ const CreateUserForm = () => {
         <DialogHeader>
           <DialogTitle>Create a New Account</DialogTitle>
         </DialogHeader>
-        <form action="#" className="space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              onChange={(e) => handleFormUpdate("name", e.target.value)}
-              type="text"
-              id="name"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(createUser)}>
+            <FormField
               name="name"
-              placeholder="John Doe"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="name">Name:</FormLabel>
+                  <Input id="name" {...field} />
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <span className="text-xs text-red-500">{errors?.name}</span>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              onChange={(e) => handleFormUpdate("email", e.target.value)}
-              type="text"
-              id="email"
+            <FormField
               name="email"
-              placeholder="john@example.com"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="email">Email:</FormLabel>
+                  <Input id="email" {...field} />
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <span className="text-xs text-red-500">{errors?.email}</span>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              onChange={(e) => handleFormUpdate("password", e.target.value)}
-              type="password"
-              id="passowrd"
+            <FormField
               name="password"
-              placeholder="***********"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="password">Password:</FormLabel>
+                  <Input id="password" {...field} />
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <span className="text-xs text-red-500">{errors?.password}</span>
-          </div>
-          <div>
-            <Select onValueChange={(v) => handleFormUpdate("role", v)}>
-              <SelectTrigger className="w-full">
-                <SelectValue
-                  onChange={() => alert("hello")}
-                  placeholder="Select Role"
-                />
-              </SelectTrigger>
-              <SelectContent id="role">
-                <SelectItem value="student">Student</SelectItem>
-                <SelectItem value="teacher">Teacher</SelectItem>
-              </SelectContent>
-            </Select>
-            <span className="text-xs text-red-500">{errors?.role}</span>
-          </div>
-        </form>
-        <DialogFooter className="mt-4">
-          <Button onClick={() => createUser()} className="w-full">
-            Create
-          </Button>
-        </DialogFooter>
+            <FormField
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel htmlFor="role">Role:</FormLabel>
+                  <Select onValueChange={field.onChange} {...field}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Role" />
+                    </SelectTrigger>
+                    <SelectContent id="role">
+                      <SelectItem value="student">Student</SelectItem>
+                      <SelectItem value="teacher">Teacher</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button className="w-full mt-4">Create</Button>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

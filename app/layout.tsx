@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { Toaster } from "react-hot-toast";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -20,6 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={clsx([font.className, "bg-secondary text-foreground"])}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Toaster />
           {children}
         </ThemeProvider>
       </body>

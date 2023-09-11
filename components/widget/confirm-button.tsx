@@ -8,11 +8,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
+import { createPortal } from "react-dom";
+import { isPromise } from "util/types";
 
 type ConfirmButtonProps = {
   title?: string;
   description?: string;
-  onConfirm?: (done: () => void) => void;
+  onConfirm?: (done?: () => void) => void | Promise<any>;
 } & ButtonProps;
 
 const ConfirmButton = ({
@@ -25,32 +27,38 @@ const ConfirmButton = ({
 
   const handleConfirmation = () => {
     if (onConfirm === undefined) return setIsopen(false);
-    onConfirm(() => setIsopen(false));
+    const result = onConfirm(() => setIsopen(false));
+    if (result?.then) {
+      result.finally(() => setIsopen(false));
+    }
   };
 
   return (
     <Dialog open={isopen} onOpenChange={() => setIsopen(!isopen)}>
       <Button onClick={() => setIsopen(true)} {...props}></Button>
-      <DialogContent>
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="text-center">{title}</DialogTitle>
-          <DialogDescription className="text-center">
-            {description}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex w-full justify-center">
-          <Button
-            onClick={handleConfirmation}
-            variant={props.variant}
-            className="mr-4"
-          >
-            Proceed
-          </Button>
-          <Button variant="secondary" onClick={() => setIsopen(!isopen)}>
-            Cancel
-          </Button>
-        </div>
-      </DialogContent>
+      {createPortal(
+        <DialogContent>
+          <DialogHeader className="space-y-3">
+            <DialogTitle className="text-center">{title}</DialogTitle>
+            <DialogDescription className="text-center">
+              {description}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex w-full justify-center">
+            <Button
+              onClick={handleConfirmation}
+              variant={props.variant}
+              className="mr-4"
+            >
+              Proceed
+            </Button>
+            <Button variant="secondary" onClick={() => setIsopen(!isopen)}>
+              Cancel
+            </Button>
+          </div>
+        </DialogContent>,
+        document.body
+      )}
     </Dialog>
   );
 };

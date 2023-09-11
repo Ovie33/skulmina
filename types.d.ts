@@ -13,6 +13,7 @@ export type LoginCredentialsError = {
 
 export type ExamType = {
   id: number;
+  code: string;
   user_id: number;
   title: string;
   description: string;

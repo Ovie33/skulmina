@@ -10,17 +10,24 @@ import ExamCardSkeleton from "../../components/quiz/skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import notify from "@/lib/notify";
 
 const Examinations = () => {
   const {
     data: exams,
     mutate,
     isLoading,
-  } = useSwr<ApiResponse<ExamType[]>>("exams", () => getQuizzes());
+  } = useSwr<ApiResponse<ExamType[]>>("quizzes", () => getQuizzes());
 
   const handleDelete = async (id: string | number) => {
-    await deleteQuiz(id);
-    mutate();
+    try {
+      await deleteQuiz(id);
+      mutate();
+      notify.success("deleted");
+      return;
+    } catch (err) {
+      throw err;
+    }
   };
 
   return (
@@ -29,7 +36,7 @@ const Examinations = () => {
         <CardHeader className="flex-row items-center">
           <CardTitle>All Quizzes</CardTitle>
           <Button className="ml-auto">
-            <Link href={"/examinations/create"}>Create Quiz</Link>
+            <Link href={"/quizzes/create"}>Create Quiz</Link>
           </Button>
         </CardHeader>
         <CardContent className="grid gap-2 md:grid-cols-3 w-full">

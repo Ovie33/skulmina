@@ -1,74 +1,73 @@
-import React from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "../ui/table";
 import { Card, CardContent } from "../ui/card";
-import { Edit3, PlusIcon, Trash2 } from "lucide-react";
+import { Edit3, Loader, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import ConfirmButton from "../widget/confirm-button";
-import Question from "@/app/questions/page";
 import { Checkbox } from "../ui/checkbox";
 import { QuestionType } from "@/types";
 import { useRouter } from "next/navigation";
-import { deleteQuestion } from "@/src/api/question";
 
+type QuestionTableProps = {
+  questions: QuestionType[];
+  loading?: boolean;
+  onDelete: (id: string | number) => Promise<any>;
+};
 
-
-
-function QuestionTable({questions}: {questions:QuestionType[]}) {
-
-  const router = useRouter();
-
-  const handleDelete = (id: number | string) => {
-    deleteQuestion(id).then((res) => router.push("/questions"))
-}
-
+function QuestionTable({ questions, loading, onDelete }: QuestionTableProps) {
   return (
     <Card>
-      <CardContent>
+      <CardContent className="relative">
         <Table className="mt-5">
-          <TableCaption>A list of questions.</TableCaption>
           <TableHeader className="font-bold uppercase tracking-widest">
             <TableRow>
-              <TableHead  className="flex items-center justify-start gap-3">
-                ID <ConfirmButton>
-                  <PlusIcon size={14}/> bulk action
-                </ConfirmButton>
+              <TableHead className="flex items-center justify-start gap-3">
+                <Checkbox />
               </TableHead>
 
-              <TableHead>Question</TableHead>
-              <TableHead className="text-right">Delete | Edit</TableHead>
+              <TableHead>
+                <span className="text-xs">Question</span>
+              </TableHead>
+              <TableHead className="text-right">
+                <span className="text-xs">Action</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {questions && questions.map(({ id, description }) => (
-              <>
-                <TableRow>
-                  <TableCell className="flex items-center gap-1">
-                    <Checkbox /> {id}
-                  </TableCell>
+            {questions?.map(({ id, description }, index) => (
+              <TableRow key={id}>
+                <TableCell>
+                  <Checkbox />
+                </TableCell>
+                <TableCell>{description}</TableCell>
+                <TableCell className="flex items-center justify-end gap-1">
+                  <ConfirmButton
+                    onConfirm={() => onDelete(id)}
+                    variant="destructive"
+                    size={"sm"}
+                  >
+                    <Trash2 size={14} />
+                  </ConfirmButton>
 
-                  <TableCell>{description}</TableCell>
-                  <TableCell className="flex items-center justify-end gap-2">
-                    <ConfirmButton onConfirm={() => handleDelete(id)} variant="destructive">
-                      <Trash2 size={14} />
-                    </ConfirmButton>
-
-                    <Button variant="default">
-                      <Edit3 size={14} />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              </>
+                  <Button variant="default" size={"sm"}>
+                    <Edit3 size={14} />
+                  </Button>
+                </TableCell>
+              </TableRow>
             ))}
           </TableBody>
         </Table>
+        {loading && (
+          <div className="absolute inset-0 bg-muted opacity-50 grid place-items-center">
+            <Loader size={24} className="animate-spin mx-auto" />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -13,6 +13,7 @@ import { handleValidationError } from "@/lib/httpClient";
 import { useEffect } from "react";
 import useSwr from "swr";
 import QuizForm from "../../../../components/quiz/quiz-form";
+import notify from "@/lib/notify";
 
 function UpdateQuizPage() {
   const { id } = useParams();
@@ -35,10 +36,14 @@ function UpdateQuizPage() {
 
   const redirect = useRouter();
 
-  const onSubmit = (data: z.infer<typeof quizFormSchema>) => {
-    updateQuiz(id as string, data)
-      .then((res) => redirect.push("/examinations"))
-      .catch((err) => handleValidationError(err, form.setError));
+  const onSubmit = async (data: z.infer<typeof quizFormSchema>) => {
+    try {
+      await updateQuiz(id as string, data);
+      notify.success("Saved");
+      redirect.push("/quizzes");
+    } catch (error) {
+      handleValidationError(error, form.setError);
+    }
   };
 
   if (isLoading) return <>Loading...</>;

@@ -39,6 +39,7 @@ const QuizCard = ({ quiz, onDelete }: QuizCardProps) => {
             Questions: {quiz?.questions?.length}
           </Typography>
           <Typography as="span">Minutes: {quiz.time_limit}</Typography>
+          <Typography as="span">Code: {quiz.code}</Typography>
         </CardDescription>
       </CardContent>
       <CardFooter>

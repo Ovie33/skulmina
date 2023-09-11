@@ -31,6 +31,7 @@ export const optionSchema = z.object({
 export const QuestionFormSchema = z.object({
   questions: z.array(
     z.object({
+      id: z.string().optional(),
       description: z.string().min(1, { message: "the description required" }),
       options: z
         .array(optionSchema)

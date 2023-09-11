@@ -7,10 +7,12 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import Typography from "@/components/ui/typography";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { handleValidationError } from "@/lib/httpClient";
-import { createQuestion } from "@/src/api/question";
+import notify from "@/lib/notify";
+import { createManyQuestions, createQuestion } from "@/src/api/question";
 import { getQuizzes } from "@/src/api/quiz";
 import { QuestionFormSchema } from "@/src/schemas/quiz";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -29,86 +31,83 @@ const initialData = {
 function page() {
   const { id } = useParams();
   const router = useRouter();
-  const { data: quiz } = useSwr(["quiz", id], () => getQuizzes(id as string));
-  const [localStorageQuestion, setLocalStorageQuestion] = useLocalStorage(
-    `question-${id}`,
-    initialData
+  const { data: quiz, mutate } = useSwr(["quiz", id], () =>
+    getQuizzes(id as string)
   );
+  const [
+    localStorageQuestion,
+    setLocalStorageQuestion,
+    removeLocalStorageQuestion,
+  ] = useLocalStorage(`question-${id}`, initialData);
+
+  const initialQuestions: z.infer<typeof QuestionFormSchema> = {
+    questions: [
+      ...(quiz?.data?.questions || []),
+      ...Array.from(localStorageQuestion),
+    ],
+  };
 
   const form = useForm<z.infer<typeof QuestionFormSchema>>({
     resolver: zodResolver(QuestionFormSchema),
     defaultValues: localStorageQuestion,
   });
 
+  useEffect(() => {
+    form.setValue("questions", initialQuestions.questions);
+  }, [quiz]);
+
   // Autosave form state while form is changing
   useEffect(() => {
     const subscription = form.watch((value) => {
-      setLocalStorageQuestion(value);
+      const saveValue = value?.questions?.filter((q) => !q?.id);
+      setLocalStorageQuestion(saveValue);
     });
     return () => subscription.unsubscribe();
   }, [form.watch]);
 
-  const onSubmit = (data: z.infer<typeof QuestionFormSchema>) => {
-    const transformedData = data.questions.map((question) => ({
-      description: question.description,
-      options: question.options
-        .filter((op) => !op.is_correct)
-        .map((d) => d.value),
-      answers: question.options
-        .filter((op) => op.is_correct)
-        .map((d) => d.value),
-      examination_id: id,
-    }));
-
-    Promise.allSettled(
-      transformedData.map((question) => createQuestion(question))
-    )
-      .then((questions) => {
-        router.refresh();
-      })
-      .catch((err) => handleValidationError(err, form.setError));
+  const onSubmit = async (data: z.infer<typeof QuestionFormSchema>) => {
+    try {
+      await createManyQuestions(data, id as string);
+      removeLocalStorageQuestion();
+      mutate();
+      notify.success("saved");
+      router.push("/quizzes");
+      return;
+    } catch (err) {
+      handleValidationError(err, form.setError);
+      console.log(err);
+    }
   };
 
   return (
     <DashboardLayout>
       <Card className="py-4">
-        <CardContent>
-          <CardTitle>{quiz?.data.title}</CardTitle>
-          <Typography variant="small">
-            <Typography variant="strong">Publish Date:</Typography>
-            <Typography as="span">{quiz?.data.published_at}</Typography>
-          </Typography>
-          <div className="flex items-center py-3">
-            <Button onClick={form.handleSubmit(onSubmit)} className="ml-auto">
-              Save
-            </Button>
+        <CardContent className="flex items-center">
+          <div>
+            <CardTitle>{quiz?.data?.title}</CardTitle>
+            <Typography variant="small">
+              <Typography variant="strong">Publish Date:</Typography>
+              <Typography as="span">{quiz?.data?.published_at}</Typography>
+            </Typography>
           </div>
+          <Button
+            disabled={form.formState.isSubmitting}
+            onClick={form.handleSubmit(onSubmit)}
+            className="ml-auto"
+          >
+            {form.formState.isSubmitting ? (
+              <>
+                <Loader size={14} className="animate-spin" />
+                <span>Please Wait</span>
+              </>
+            ) : (
+              <span>Save</span>
+            )}
+          </Button>
         </CardContent>
       </Card>
 
-      <QuestionForm form={form} onSubmit={onSubmit} />
-
-      {/* {fields.map((field, index) => (
-        <Card key={field.id} className="my-4 p-2">
-          <CardHeader className="flex-row items-center">
-            <Typography variant="h4">Question {1 + index}</Typography>
-            <Button
-              className="ml-auto block"
-              onClick={() => remove(index)}
-              variant={"outline"}
-            >
-              <X size={14} />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      ))} */}
+      <QuestionForm form={form} />
     </DashboardLayout>
   );
 }

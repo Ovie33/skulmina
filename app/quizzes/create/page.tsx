@@ -21,7 +21,7 @@ function CreateQuizPage() {
 
   const onSubmit = (data: z.infer<typeof quizFormSchema>) => {
     createQuiz(data)
-      .then((res) => redirect.push("/examinations"))
+      .then((res) => redirect.push("/quizzes"))
       .catch((err) => handleValidationError(err, form.setError));
   };
   return (

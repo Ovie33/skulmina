@@ -41,7 +41,7 @@ function MultiChoiceInput({
             name={`questions.${parentIndex}.${name}.${index}.value`}
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel>Option {index + 1}</FormLabel>
+                <FormLabel htmlFor={field.name}>Option {index + 1}</FormLabel>
                 <div className="flex">
                   <Button
                     className="rounded-r-none border-r-none"
@@ -53,6 +53,7 @@ function MultiChoiceInput({
                   </Button>
                   <Input
                     {...field}
+                    id={field.name}
                     className="rounded-l-none rounded-r-none border-x-0"
                     placeholder={`Choice ${index + 1}`}
                   />
@@ -66,18 +67,16 @@ function MultiChoiceInput({
             name={`questions.${parentIndex}.${name}.${index}.is_correct`}
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>correct</FormLabel>
-                <Button
-                  type="button"
-                  variant={"outline"}
-                  className="flex rounded-l-none"
-                >
+                <FormLabel htmlFor={field.name}>correct</FormLabel>
+                <span className="flex border p-2 rounded-l-none">
                   <Switch
+                    id={field.name}
+                    name={field.name}
                     checked={field.value}
                     onCheckedChange={field.onChange}
                     placeholder={`Choice ${index + 1}`}
                   />
-                </Button>
+                </span>
                 <FormMessage />
               </FormItem>
             )}

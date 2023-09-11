@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import Typography from "../ui/typography";
 import { Plus, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type QuestionFormProps = {
   form: UseFormReturn<z.infer<typeof QuestionFormSchema>, any, undefined>;
@@ -33,7 +34,12 @@ function QuestionForm({ form, limit = 10 }: QuestionFormProps) {
   return (
     <div>
       {fields.map((field, index) => (
-        <Card key={field.id} className="my-4 p-2">
+        <Card
+          key={field.id}
+          className={cn("my-4 p-2", {
+            "border-primary border-2": form.getValues("questions")[index].id,
+          })}
+        >
           <CardHeader className="flex-row items-center">
             <Typography variant="h4">Question {1 + index}</Typography>
             <Button
@@ -47,7 +53,7 @@ function QuestionForm({ form, limit = 10 }: QuestionFormProps) {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form className="space-y-3">
+              <form name={`question-form-${index}`} className="space-y-3">
                 {/* Start Error Message */}
                 <FormField
                   name={`questions.${index}.options.root`}
@@ -61,11 +67,14 @@ function QuestionForm({ form, limit = 10 }: QuestionFormProps) {
                   name={`questions.${index}.description`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel htmlFor={`questions.${index}.description`}>
+                        Description
+                      </FormLabel>
                       <Textarea
+                        {...field}
                         placeholder="Write question here"
                         className="resize-none"
-                        {...field}
+                        id={`questions.${index}.description`}
                       />
                       <FormMessage />
                     </FormItem>
