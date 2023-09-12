@@ -6,7 +6,7 @@ export function useLocalStorage(key: string, initialValue: any) {
 
   const [storedValue, setStoredValue] = useState(() => {
     if (isLocalStorageAvailable) {
-      const item = window.localStorage.getItem(key);
+      const item = window.localStorage.getItem(key) || "";
       return item ? JSON.parse(item) : initialValue;
     } else {
       return initialValue;
