@@ -2,7 +2,7 @@ import axios, { isAxiosError } from "axios";
 import { UseFormSetError } from "react-hook-form";
 
 const httpClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_ENPOINT,
+  baseURL: process.env.NEXT_PUBLIC_API_ENDPOINT,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

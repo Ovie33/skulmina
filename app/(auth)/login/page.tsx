@@ -18,10 +18,6 @@ import useAuth from "@/hooks/useAuth";
 import { LoginCredentials, LoginCredentialsError } from "@/types";
 import ValidationError from "@/components/ui/validation-error";
 
-// export const metadata: Metadata = {
-//   title: "Login",
-// };
-
 function Page() {
   const [form, setForm] = useState<LoginCredentials>({
     email: "",

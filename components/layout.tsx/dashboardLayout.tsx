@@ -20,7 +20,7 @@ const navigations = {
   ],
   student: [
     { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { title: "Quizzes", path: "/quizzes", icon: Presentation },
+    { title: "Quizzes", path: "/quizzes/code", icon: Presentation },
     { title: "Results", path: "/results", icon: GraduationCap },
   ],
   teacher: [
@@ -52,10 +52,10 @@ const DashboardLayout = ({ children }: React.PropsWithChildren) => {
     <div className="">
       <main className="flex">
         <Sidebar navigations={navigations[user.role]} />
-        <section className="w-full">
+        <section className="w-full bg-background">
           <Navbar logout={logout} />
-          <header className="bg-primary h-56"></header>
-          <div className="-translate-y-48 mx-auto px-2 md:px-4 lg:px-12">
+          <header className="h-56 bg-primary w-full"></header>
+          <div className="mx-auto px-2 py-5 md:px-4 lg:px-12 -translate-y-48">
             {children}
           </div>
         </section>

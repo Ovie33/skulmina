@@ -19,7 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={clsx([font.className, "bg-secondary text-foreground"])}>
+      <body className={clsx([font.className, "bg-primary text-foreground"])}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <Toaster />
           {children}

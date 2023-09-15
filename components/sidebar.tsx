@@ -24,20 +24,20 @@ function Sidebar({ navigations }: SidebarProps) {
   return (
     <aside
       className={clsx(
-        "transition-[width] max-w-[250px] relative z-10",
+        "transition-[width] max-w-[250px] relative z-10 ",
         display
       )}
     >
       <Button
         onClick={collaspe}
-        className="right-0 top-32 rounded-none absolute translate-x-full"
+        className="right-[-20px] top-[15px] absolute translate-x-full rounded-md"
         size={"sm"}
         variant={"secondary"}
       >
         <Menu size={18} />
       </Button>
 
-      <div className="flex flex-col h-screen max-w-lg py-6 space-y-12 bg-background overflow-hidden">
+      <div className="flex flex-col h-screen max-w-lg py-6 rounded-tr-[50px] space-y-12 bg-background overflow-hidden">
         <header className="pl-8 pr-4">
           <h1 className="text-2xl font-bold">Logo</h1>
         </header>

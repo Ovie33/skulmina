@@ -39,9 +39,11 @@ const StartPage = () => {
 
   return (
     <DashboardLayout>
-      <section className="w-full flex overflow-hidden h-[100vh] justify-between relative">
+      <section className="w-full flex overflow-hidden justify-between relative">
         <div className="p-12">
-          <p className="text-2xl font-bold mt-24">{question.description}</p>
+          <p className="text-xl md:text-2xl font-bold mt-12 md:mt-16 text">
+            {question.description}
+          </p>
           <div className="space-y-4 py-4 mt-7">
             {question.options.map((option, index) => {
               return (
@@ -69,11 +71,11 @@ const StartPage = () => {
         {/* ------------ */}
         {/* sidebar */}
         {/* ------------- */}
-        <div className="md:px-8 md:py-4 md:min-w-[250px] bg-background flex flex-col text-center space-y-8">
-          <h1 className="flex items-center justify-end text-xl font-semibold space-x-2">
-            Timer :<span className="md:text-4xl font-bold ml-4"> 2:03</span>
+        <div className=" hidden md:block md:px-12 md:py-4 md:min-w-[250px] justify-center items-center bg-background flex flex-col text-center space-y-8 rounded-md shadow-md">
+          <h1 className="flex items-center text-xl font-semibold space-x-2 mt-4">
+            Timer :<span className="md:text-4xl font-bold ml-2"> 2:03</span>
           </h1>
-          <h1 className="mt-8">Questions</h1>
+          <h1 className="mt-2">Questions</h1>
           <div className="grid grid-cols-4 gap-2 mt-4">
             {ids.map((num, index) => (
               <Button
@@ -91,7 +93,9 @@ const StartPage = () => {
               </Button>
             ))}
           </div>
-          <Button onClick={popup}>Submit</Button>
+          <Button className="w-full" onClick={popup}>
+            Submit
+          </Button>
         </div>
         {/* ------------ */}
         {/* Pop up on submition */}
